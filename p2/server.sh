@@ -21,3 +21,8 @@ fi
 
 NODE_TOKEN=$(cat /var/lib/rancher/k3s/server/node-token)
 echo "$NODE_TOKEN" > /vagrant/k3s-token
+
+# Resolve app hosts
+echo "192.168.56.110 app1.com app2.com app3.com" >> /etc/hosts
+
+kubectl apply -f /vagrant/app.yml
