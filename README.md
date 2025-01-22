@@ -1,3 +1,4 @@
+# P1 and  P2
 ## Setup Vagrant
 ### Install vagrant (2.4.3)
 
@@ -21,6 +22,12 @@ vagrant plugin install vagrant-qemu
 vagrant plugin install vagrant-libvirt
 ```
 
+### Install virtualbox
+
+```shell
+sudo apt install virtualbox virtualbox-qt virtualbox-dkms virtualbox-guest-additions-iso virtualbox-guest-utils virtualbox-ext-pack
+```
+
 ### Install nfs for sync folders
 
 ```shell
@@ -28,15 +35,68 @@ sudo apt install nfs-kernel-server
 sudo systemctl start nfs-kernel-server.service
 ```
 
-### Install vagrant box (image): Ubuntu LTS 22.04
+# Part 3
 
-`vagrant init generic/ubuntu2204 --box-version 4.3.12`
+## Install ansible
+    
+```shell
+sudo apt update
+sudo apt install pipx
+pipx ensurepath
 
-#### Edit vagrantfile
+pipx install --include-deps ansible
+```
 
-```text
-Vagrant.configure("2") do |config|
-  config.vm.box = "cloud-image/ubuntu-24.04"
-  config.vm.box_version = "20240822.0.0"
-end
+## Install k3d
+
+### Install docker
+```shell
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+### Install kubectl
+```shell
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+```
+### Install k3d
+```shell
+curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+```
+
+## Install helm
+```shell
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+```
+
+## Create k3d cluster
+```shell
+sudo k3d cluster create triouS
+```
+
+## Install argocd with helm
+
+```shell
+sudo helm repo add argo https://argoproj.github.io/argo-helm
+
+sudo helm install argocd argo/argo-cd
 ```
