@@ -4,3 +4,5 @@ crds:
 configs:
   params:
     server.insecure: true
+    server.rootpath: /argocd
+    server.basehref: /argocd

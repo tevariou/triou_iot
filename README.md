@@ -123,3 +123,8 @@ rm argocd-linux-amd64
 sudo argocd admin initial-password -n argocd
 ```
 
+## Create argocd app
+
+```shell
+sudo kubectl apply -f ./p3/confs/argocd/app.yaml
+``` 
