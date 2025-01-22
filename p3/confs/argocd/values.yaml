@@ -1,2 +1,6 @@
 crds:
   install: false
+
+configs:
+  params:
+    server.insecure: true

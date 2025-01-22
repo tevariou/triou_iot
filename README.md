@@ -9,8 +9,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashi
 sudo apt update && sudo apt install vagrant build-essential
 ```
 
-### Install qemu-kvm and libvirt
-
+### Install qemu-kvm and libvirt (Not needed for virtualbox)
 
 ```shell
 sudo apt install qemu-system qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils libvirt-dev
@@ -69,11 +68,13 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 ```
 
 ### Install kubectl
+
 ```shell
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 ```
+
 ### Install k3d
 ```shell
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
@@ -90,13 +91,33 @@ sudo apt-get install helm
 
 ## Create k3d cluster
 ```shell
-sudo k3d cluster create triouS
+sudo k3d cluster create triouS -p "80:80@loadbalancer"
 ```
 
-## Install argocd with helm
+## Install argocd with helm (argocd namespace)
 
 ```shell
 sudo helm repo add argo https://argoproj.github.io/argo-helm
 
-sudo helm install argocd argo/argo-cd
+sudo helm install argocd argo/argo-cd -f ./p3/confs/argocd/values.yaml --namespace=argocd --create-namespace
+```
+
+## Access argocd via port forwarding
+    
+```shell
+sudo kubectl port-forward svc/argocd-server -n argocd 8080:80 --address="0.0.0.0"
+```
+Then access http://64.226.99.156:8080 in your browser
+
+## Argocd credentials
+
+```shell
+sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+## Install argocd cli
+```shell
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
 ```
