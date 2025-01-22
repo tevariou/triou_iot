@@ -109,15 +109,16 @@ sudo kubectl port-forward svc/argocd-server -n argocd 8080:80 --address="0.0.0.0
 ```
 Then access http://64.226.99.156:8080 in your browser
 
-## Argocd credentials
-
-```shell
-sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-```
-
 ## Install argocd cli
 ```shell
 curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
 sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 rm argocd-linux-amd64
 ```
+
+## Argocd credentials
+
+```shell
+sudo argocd admin initial-password -n argocd
+```
+
