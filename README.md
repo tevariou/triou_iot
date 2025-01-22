@@ -91,7 +91,7 @@ sudo apt-get install helm
 
 ## Create k3d cluster
 ```shell
-sudo k3d cluster create triouS -p "80:80@loadbalancer"
+sudo k3d cluster create triouS -p "8081:80@loadbalancer"
 ```
 
 ## Install argocd with helm (argocd namespace)
