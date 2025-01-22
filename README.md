@@ -91,7 +91,7 @@ sudo apt-get install helm
 
 ## Create k3d cluster
 ```shell
-sudo k3d cluster create triouS -p "8081:80@loadbalancer"
+sudo k3d cluster create triouS -p "8888:80@loadbalancer"
 ```
 
 ## Install argocd with helm (argocd namespace)
@@ -100,14 +100,15 @@ sudo k3d cluster create triouS -p "8081:80@loadbalancer"
 sudo helm repo add argo https://argoproj.github.io/argo-helm
 
 sudo helm install argocd argo/argo-cd -f ./p3/confs/argocd/values.yaml --namespace=argocd --create-namespace
+sudo kubectl apply -f ./p3/confs/argocd/ingress.yaml
 ```
 
-## Access argocd via port forwarding
+## Access argocd via port forwarding (optional)
     
 ```shell
 sudo kubectl port-forward svc/argocd-server -n argocd 8080:80 --address="0.0.0.0"
 ```
-Then access http://64.226.99.156:8080 in your browser
+Then access http://64.226.99.156:8080/argocd in your browser
 
 ## Install argocd cli
 ```shell
