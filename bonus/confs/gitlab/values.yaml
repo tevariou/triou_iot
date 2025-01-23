@@ -1,4 +1,5 @@
 global:
+  upgradeCheck.enabled: false
   edition: "ce"
   certmanager-issuer.email: "triou@student.42.fr"
   hosts:

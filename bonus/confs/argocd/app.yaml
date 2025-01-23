@@ -10,6 +10,17 @@ spec:
       chart: gitlab
       targetRevision: 8.8.1
       helm:
+        parameters:
+          - name: "global.hosts.domain"
+            value: "gitlab.example.com"
+          - name: "global.hosts.externalIP"
+            value: "64.226.99.156"
+          - name: "certmanager-issuer.email"
+            value: "triou@student.42.fr"
+          - name: "global.edition"
+            value: "ce"
+          - name: "upgradeCheck.enabled"
+            value: "false"
         valueFiles:
           - values.yaml
           - $values/bonus/confs/gitlab/values.yaml
