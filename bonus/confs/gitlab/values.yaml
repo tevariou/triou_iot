@@ -1,9 +1,8 @@
 global:
   edition: "ce"
+  certmanager-issuer.email: "triou@student.42.fr"
   hosts:
     externalIP: 64.226.99.156
-  ingress:
-    path: "/gitlab"
   rails:
     extraEnv:
       MALLOC_CONF: "dirty_decay_ms:1000,muzzy_decay_ms:1000"

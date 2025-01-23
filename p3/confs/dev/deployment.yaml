@@ -43,7 +43,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /
+          - path: /playground
             pathType: Prefix
             backend:
               service:
