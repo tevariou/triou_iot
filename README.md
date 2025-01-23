@@ -151,7 +151,11 @@ vm.swappiness=10
 ``` 
 
 ### Create gitlab app
-    
+
+```shell
+echo "64.226.99.156 gitlab.example.com" | sudo tee -a /etc/hosts
+```
+
 ```shell
 sudo kubectl apply -f ./bonus/confs/argocd/app.yaml
 ```
