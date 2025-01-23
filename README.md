@@ -128,3 +128,30 @@ sudo argocd admin initial-password -n argocd
 ```shell
 sudo kubectl apply -f ./p3/confs/argocd/app.yaml
 ``` 
+
+# Bonus
+
+## Install Gitlab
+
+### References
+
+https://docs.gitlab.com/omnibus/settings/memory_constrained_envs.html
+https://docs.gitlab.com/omnibus/settings/rpi.html
+
+### Set VM swap memory
+
+Configure it in the current session:
+```shell
+sudo sysctl vm.swappiness=10
+```
+
+Edit /etc/sysctl.conf to make it permanent:
+```
+vm.swappiness=10
+``` 
+
+### Create gitlab app
+    
+```shell
+sudo kubectl apply -f ./bonus/confs/argocd/app.yaml
+```
