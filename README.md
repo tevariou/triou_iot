@@ -135,6 +135,8 @@ EOF
 
 ```shell
 sudo kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/aws/deploy.yaml
+sudo kubectl apply -f ./p3/confs/nginx/static-ip-svc.yaml
+sudo kubectl apply -f ./p3/confs/nginx/nginx-ingress-controller.yaml
 ```
 
 ## Install argocd with helm (argocd namespace)
@@ -143,7 +145,7 @@ sudo kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx
 sudo helm repo add argo https://argoproj.github.io/argo-helm
 sudo kubectl apply -k "https://github.com/argoproj/argo-cd/manifests/crds?ref=v2.13.3"
 sudo helm install argocd argo/argo-cd -f ./p3/confs/argocd/values.yaml --namespace=argocd --create-namespace
-sudo kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+sudo kubectl apply -f p3/confs/argocd/ingress.yaml
 ```
 
 ## Access argocd via port forwarding (optional)
