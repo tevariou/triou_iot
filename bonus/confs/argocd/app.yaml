@@ -37,8 +37,6 @@ spec:
             upgradeCheck.enabled: false
             edition: "ce"
             certmanager-issuer.email: "triou@student.42.fr"
-            ingress:
-              configureCertmanager: false
             hosts:
               domain: "gitlab.example.com"
               externalIP: 64.226.99.156

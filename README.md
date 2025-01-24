@@ -91,16 +91,59 @@ sudo apt-get install helm
 
 ## Create k3d cluster
 ```shell
-sudo k3d cluster create triouS -p "8888:80@loadbalancer"
+sudo k3d cluster create triouS --api-port 6550 --k3s-arg "--disable=traefik@server:0" --k3s-arg "--disable=servicelb@server:0" --no-lb
+```
+
+### Install metallb
+```shell
+sudo kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+```
+
+#### Configure metallb
+```shell
+cluster_name=k3d-triouS
+cidr_block=$(sudo docker network inspect $cluster_name | jq -r '.[0].IPAM.Config[0].Subnet')
+cidr_base_addr=${cidr_block%???}
+ingress_first_addr=$(echo $cidr_base_addr | awk -F'.' '{print $1,$2,255,2}' OFS='.')
+ingress_last_addr=$(echo $cidr_base_addr | awk -F'.' '{print $1,$2,255,254}' OFS='.')
+ingress_range=$ingress_first_addr-$ingress_last_addr
+cat <<EOF | sudo kubectl apply -f -
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default
+  namespace: metallb-system
+spec:
+  addresses:
+   - $ingress_range
+  autoAssign: true
+  avoidBuggyIPs: true
+EOF
+cat <<EOF | sudo kubectl apply -f -
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2advertisement
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - default
+EOF
+```
+
+## Install nginx ingress controller
+
+```shell
+sudo kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/aws/deploy.yaml
 ```
 
 ## Install argocd with helm (argocd namespace)
 
 ```shell
 sudo helm repo add argo https://argoproj.github.io/argo-helm
-
+sudo kubectl apply -k "https://github.com/argoproj/argo-cd/manifests/crds?ref=v2.13.3"
 sudo helm install argocd argo/argo-cd -f ./p3/confs/argocd/values.yaml --namespace=argocd --create-namespace
-sudo kubectl apply -f ./p3/confs/argocd/ingress.yaml
+sudo kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 ```
 
 ## Access argocd via port forwarding (optional)

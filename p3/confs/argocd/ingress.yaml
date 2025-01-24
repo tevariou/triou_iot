@@ -4,13 +4,15 @@ metadata:
   name: argocd-server-ingress
   namespace: argocd
   annotations:
-    ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
+  ingressClassName: nginx
   rules:
     - http:
         paths:
-          - path: /argocd
-            pathType: Prefix
+          - pathType: Prefix
+            path: /argocd
             backend:
               service:
                 name: argocd-server
