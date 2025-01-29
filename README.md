@@ -135,8 +135,6 @@ EOF
 
 ```shell
 sudo kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/aws/deploy.yaml
-sudo kubectl apply -f ./p3/confs/nginx/static-ip-svc.yaml
-sudo kubectl apply -f ./p3/confs/nginx/nginx-ingress-controller.yaml
 ```
 
 ## Install argocd with helm (argocd namespace)
@@ -168,7 +166,7 @@ rm argocd-linux-amd64
 sudo argocd admin initial-password -n argocd
 ```
 
-## Create argocd app
+## Create argocd app (P3)
 
 ```shell
 sudo kubectl apply -f ./p3/confs/argocd/app.yaml
@@ -203,4 +201,15 @@ echo "64.226.99.156 gitlab.example.com" | sudo tee -a /etc/hosts
 
 ```shell
 sudo kubectl apply -f ./bonus/confs/argocd/app.yaml
+```
+
+## Setup NAT with iptables
+
+```shell
+sudo iptables -t nat -A PREROUTING -p tcp -d 64.226.99.156 --dport 80 -i eth0 -j DNAT --to-destination 172.18.255.2:80
+```
+
+To make it permanent
+```shell
+sudo iptables-save > /etc/iptables/rules.v4
 ```

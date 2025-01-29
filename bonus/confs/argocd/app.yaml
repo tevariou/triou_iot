@@ -13,8 +13,6 @@ spec:
         parameters:
           - name: "global.hosts.domain"
             value: "example.com"
-          - name: "global.hosts.externalIP"
-            value: "64.226.99.156"
           - name: "certmanager-issuer.email"
             value: "triou@student.42.fr"
           - name: "global.edition"
@@ -35,11 +33,6 @@ spec:
                   memory: 512Mi
           global:
             upgradeCheck.enabled: false
-            edition: "ce"
-            certmanager-issuer.email: "triou@student.42.fr"
-            hosts:
-              domain: "gitlab.example.com"
-              externalIP: 64.226.99.156
             rails:
               extraEnv:
                 MALLOC_CONF: "dirty_decay_ms:1000,muzzy_decay_ms:1000"
