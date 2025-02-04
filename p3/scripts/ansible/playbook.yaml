@@ -1,0 +1,68 @@
+- name: Check VM availability
+  hosts: all
+  tasks:
+    - name: Ping my hosts
+      ansible.builtin.ping:
+
+- name: Install system packages
+  hosts: all
+  become: yes
+  tasks:
+    - ansible.builtin.apt:
+        name:
+          - zsh
+          - git
+          - python3-pip
+          - python3-venv
+          - python3-kubernetes
+        state: present
+
+- name: Install Vagrant
+  hosts: all
+  become: yes
+  roles:
+    - role: vagrant
+  tags:
+    - vagrant
+
+- name: Install docker
+  hosts: all
+  become: yes
+  roles:
+    - role: geerlingguy.docker
+  tags:
+    - docker
+
+- name: Install cluster
+  hosts: all
+  become: yes
+  roles:
+    - role: cluster
+  vars:
+    cluster_name: "triouS"
+  tags:
+    - cluster
+
+- name: Install ArgoCD
+  hosts: all
+  become: yes
+  roles:
+      - role: argocd
+  tags:
+      - argocd
+
+- name: Install Wil's app
+  hosts: all
+  become: yes
+  roles:
+    - role: dev
+  tags:
+    - dev
+
+- name: Install gitlab
+  hosts: all
+  become: yes
+  roles:
+    - role: gitlab
+  tags:
+      - gitlab

@@ -1,0 +1,62 @@
+---
+- name: Add ArgoCD chart repo
+  kubernetes.core.helm_repository:
+    name: argo
+    repo_url: "https://argoproj.github.io/argo-helm"
+
+- name: Install ArgoCD CRD
+  ansible.builtin.shell: |
+    kubectl apply -k "https://github.com/argoproj/argo-cd/manifests/crds?ref=v2.13.3"
+
+- name: Create argocd namespace
+  kubernetes.core.k8s:
+    name: argocd
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Install ArgoCD
+  kubernetes.core.helm:
+      name: argocd
+      chart_ref: argo/argo-cd
+      chart_version: 7.8.0
+      namespace: argocd
+      values:
+        crds:
+          install: false
+        configs:
+          params:
+            server.insecure: true
+            server.rootpath: /
+            server.basehref: /
+
+- name: Add ArgoCD ingress
+  kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: argocd-server-ingress
+          namespace: argocd
+          annotations:
+            nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        spec:
+          ingressClassName: nginx
+          rules:
+            - host: argocd.example.com
+              http:
+                paths:
+                  - pathType: Prefix
+                    path: /
+                    backend:
+                      service:
+                        name: argocd-server
+                        port:
+                          number: 80
+
+- name: Add ArgoCD CLI
+  ansible.builtin.shell: |
+    curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+    install -m 555 argocd-linux-amd64 /usr/local/bin/argocd

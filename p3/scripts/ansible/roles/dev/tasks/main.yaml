@@ -1,0 +1,32 @@
+---
+- name: Create dev namespace
+  kubernetes.core.k8s:
+    name: dev
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Install dev Wil's app
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: dev
+        namespace: argocd
+      spec:
+        project: default
+        source:
+          repoURL: https://github.com/tevariou/iot.git
+          path: p3/confs/dev/
+          targetRevision: main
+        destination:
+          server: "https://kubernetes.default.svc"
+          namespace: dev
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+            allowEmpty: true
+          syncOptions:
+            - CreateNamespace=true

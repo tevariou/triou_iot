@@ -1,50 +1,36 @@
-# P1 and  P2
-## Setup Vagrant
-### Install vagrant (2.4.3)
+# Setup VM
 
-https://developer.hashicorp.com/vagrant/install
-```shell
-wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update && sudo apt install vagrant build-essential
+## Configure your ssh connection
+    
+* In your `~/.ssh/config` file, add the following configuration:
+```text
+Host do
+HostName 64.226.99.156
+User triou
+AddKeysToAgent yes
+UseKeychain yes
+IdentityFile ~/.ssh/do_ed25519
 ```
 
-### Install qemu-kvm and libvirt (Not needed for virtualbox)
+## Install Ansible
+
+* Requires python 3.12 on your system
 
 ```shell
-sudo apt install qemu-system qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils libvirt-dev
-sudo systemctl enable --now libvirtd
-sudo systemctl start libvirtd
-sudo usermod -aG kvm $USER
-sudo usermod -aG libvirt $USER
-vagrant plugin install vagrant-qemu
-vagrant plugin install vagrant-libvirt
+cd ./<path_to_ansible_directory>
+python -m venv .venv
+source .venv/bin/activate
+pip install ansible-core
+ansible-galaxy install -r requirements.yaml
 ```
 
-### Install virtualbox
+## Run the playbook
 
 ```shell
-sudo apt install virtualbox virtualbox-qt virtualbox-dkms virtualbox-guest-additions-iso virtualbox-guest-utils virtualbox-ext-pack
-```
-
-### Install nfs for sync folders
-
-```shell
-sudo apt install nfs-kernel-server
-sudo systemctl start nfs-kernel-server.service
+ansible-playbook -i inventory.yaml playbook.yaml 
 ```
 
 # Part 3
-
-## Install ansible
-    
-```shell
-sudo apt update
-sudo apt install pipx
-pipx ensurepath
-
-pipx install --include-deps ansible
-```
 
 ## Install k3d
 
@@ -195,8 +181,9 @@ vm.swappiness=10
 
 ### Create gitlab app
 
+On your local machine, add the following line to your `/etc/hosts` file:
 ```shell
-echo "64.226.99.156 gitlab.example.com" | sudo tee -a /etc/hosts
+echo "64.226.99.156 gitlab.example.com argocd.example.com" | sudo tee -a /etc/hosts
 ```
 
 ```shell
@@ -206,10 +193,17 @@ sudo kubectl apply -f ./bonus/confs/argocd/app.yaml
 ## Setup NAT with iptables
 
 ```shell
-sudo iptables -t nat -A PREROUTING -p tcp -d 64.226.99.156 --dport 80 -i eth0 -j DNAT --to-destination 172.18.255.2:80
+sudo iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 80 -j DNAT --to-destination 172.18.255.2
+sudo iptables -A FORWARD -p tcp -d 172.18.255.2 -j ACCEPT
 ```
 
 To make it permanent
 ```shell
 sudo iptables-save > /etc/iptables/rules.v4
+```
+
+## Get gitlab root password
+    
+```shell
+kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -o jsonpath="{.data.password}" | base64 --decode
 ```
