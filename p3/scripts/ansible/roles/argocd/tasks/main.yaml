@@ -27,8 +27,8 @@
         configs:
           params:
             server.insecure: true
-            server.rootpath: /
-            server.basehref: /
+            server.rootpath: /argocd
+            server.basehref: /argocd
 
 - name: Add ArgoCD ingress
   kubernetes.core.k8s:

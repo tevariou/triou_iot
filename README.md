@@ -148,6 +148,8 @@ rm argocd-linux-amd64
 
 ## Argocd credentials
 
+Username: `admin`
+
 ```shell
 sudo argocd admin initial-password -n argocd
 ```
@@ -195,6 +197,7 @@ sudo kubectl apply -f ./bonus/confs/argocd/app.yaml
 ```shell
 sudo iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 80 -j DNAT --to-destination 172.18.255.2
 sudo iptables -A FORWARD -p tcp -d 172.18.255.2 -j ACCEPT
+sudo iptables -A FORWARD -p tcp -d 172.18.255.3 -j ACCEPT
 ```
 
 To make it permanent
