@@ -1,5 +1,6 @@
 all:
   hosts:
     web1:
-      ansible_host: 64.226.99.156
+      ansible_host: 142.93.99.201
       ansible_user: root
+      current_user: triou

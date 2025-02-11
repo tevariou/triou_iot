@@ -30,3 +30,13 @@
             allowEmpty: true
           syncOptions:
             - CreateNamespace=true
+
+- name: Wait for service to be created
+  command: kubectl get svc playground-service -n dev
+  register: svc_info
+  until: svc_info is succeeded
+  retries: 10
+  delay: 60
+
+- name: Set up port forwarding with kubectl
+  ansible.builtin.shell: nohup kubectl -n dev port-forward --address="0.0.0.0" svc/playground-service "8888:8888" > /dev/null 2>&1 &

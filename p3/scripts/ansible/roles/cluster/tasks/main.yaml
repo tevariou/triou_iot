@@ -70,9 +70,11 @@
         cluster_name="k3d-{{ cluster_name }}"
         cidr_block=$(docker network inspect $cluster_name | jq -r '.[0].IPAM.Config[0].Subnet')
         cidr_base_addr=${cidr_block%???}
-        ingress_addr=$(echo $cidr_base_addr | awk -F'.' '{print $1,$2,255,2}' OFS='.')
-        echo "$ingress_addr"
-      register: ingress_addr
+        ingress_first_addr=$(echo $cidr_base_addr | awk -F'.' '{print $1,$2,255,2}' OFS='.')
+        ingress_last_addr=$(echo $cidr_base_addr | awk -F'.' '{print $1,$2,255,254}' OFS='.')
+        ingress_range=$ingress_first_addr-$ingress_last_addr
+        echo "$ingress_range"
+      register: ingress_range
 
     - name: Wait until all pods are running in metallb namespace
       kubernetes.core.k8s_info:
@@ -96,7 +98,7 @@
               namespace: metallb-system
           spec:
               addresses:
-               - "{{ ingress_addr.stdout }}"
+               - "{{ ingress_range.stdout }}"
               autoAssign: true
               avoidBuggyIPs: true
 
@@ -126,30 +128,3 @@
       kubernetes.core.k8s:
         state: present
         src: ~/nginx-deploy.yaml
-
-- name: Set iptable rules
-  block:
-    - ansible.builtin.iptables:
-        chain: FORWARD
-        protocol: tcp
-        destination: "{{ ingress_addr.stdout}}"
-        jump: ACCEPT
-        state: present
-    - ansible.builtin.iptables:
-        table: nat
-        chain: PREROUTING
-        protocol: tcp
-        destination_port: 80
-        in_interface: eth0
-        jump: DNAT
-        to_destination: "{{ ingress_addr.stdout }}:80"
-        state: present
-    - ansible.builtin.iptables:
-        table: nat
-        chain: PREROUTING
-        protocol: tcp
-        destination_port: 443
-        in_interface: eth0
-        jump: DNAT
-        to_destination: "{{ ingress_addr.stdout }}:443"
-        state: present

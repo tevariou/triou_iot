@@ -94,3 +94,22 @@
             allowEmpty: true
           syncOptions:
             - CreateNamespace=true
+
+- name: Wait for ingress to be created
+  command: kubectl get ingress gitlab-webservice-default -n gitlab
+  register: ingress_info
+  until: ingress_info is succeeded
+  retries: 10
+  delay: 60
+
+- name: Wait for ingress IP to be assigned
+  command: kubectl get ingress gitlab-webservice-default -n gitlab -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
+  register: ingress_ip
+  until: ingress_ip.stdout != ""
+  retries: 10
+  delay: 60
+
+- name: Add gitlab ip to /etc/hosts
+  ansible.builtin.shell: |
+    sed -i '/gitlab.example.com/d' /etc/hosts
+    kubectl -n gitlab get ingress gitlab-webservice-default -o jsonpath="{.status.loadBalancer.ingress[0].ip}" | xargs -I {} echo {} gitlab.example.com >> /etc/hosts
