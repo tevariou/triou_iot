@@ -1,17 +1,10 @@
 # Setup VM
 
-## Configure your ssh connection
-    
-* In your `~/.ssh/config` file, add the following configuration:
-```text
-Host do
-HostName <host_domain or host_ip>
-User triou
-AddKeysToAgent yes
-UseKeychain yes
-IdentityFile ~/.ssh/do_ed25519
-```
+## Install requirements
 
+```shell
+sudo apt install -y git python3-venv python3-pip vim build-essential curl
+```
 ## Install Ansible
 
 * Requires python 3.12 on your system
@@ -20,7 +13,7 @@ IdentityFile ~/.ssh/do_ed25519
 cd ./<path_to_ansible_directory>
 python -m venv .venv
 source .venv/bin/activate
-pip install ansible-core passlib
+pip install ansible-core
 ansible-galaxy install -r requirements.yaml
 ```
 
@@ -39,19 +32,19 @@ kubectl get secret current-user-password -o jsonpath="{.data.password}" | base64
 # Part 1
 
 ```shell
-ansible-playbook -i inventory.yaml playbook.yaml --tags "p1"
+ansible-playbook -i inventory.yaml playbook.yaml --ask-become-pass --tags "p1"
 ```
 
 # Part 2
 
 ```shell
-ansible-playbook -i inventory.yaml playbook.yaml --tags "p2"
+ansible-playbook -i inventory.yaml playbook.yaml --ask-become-pass --tags "p2"
 ```
 
 # Part 3
 
 ```shell
-ansible-playbook -i inventory.yaml playbook.yaml --tags "p3"
+ansible-playbook -i inventory.yaml playbook.yaml --ask-become-pass --tags "p3"
 ```
 
 ## Argocd credentials
@@ -65,7 +58,7 @@ argocd admin initial-password -n argocd
 # Bonus
 
 ```shell
-ansible-playbook -i inventory.yaml playbook.yaml --tags "bonus"
+ansible-playbook -i inventory.yaml playbook.yaml --ask-become-pass --tags "bonus"
 ```
 
 ## Get gitlab root password

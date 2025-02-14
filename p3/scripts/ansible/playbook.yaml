@@ -7,15 +7,7 @@
         upgrade: yes
     - ansible.builtin.apt:
         name:
-          - zsh
-          - git
-          - python3-pip
-          - python3-venv
           - python3-kubernetes
-          - xfce4
-          - xfce4-goodies
-          - xrdp
-          - firefox
         state: present
   tags:
     - p1
@@ -48,57 +40,6 @@
     - role: cluster
   vars:
     cluster_name: "triouS"
-  tags:
-    - p3
-    - bonus
-
-- name: Add current user
-  hosts: all
-  tasks:
-    - name: Generate a random secret
-      ansible.builtin.set_fact:
-        current_user_password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=16) }}"
-    - name: Create k3s secret
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Secret
-          metadata:
-            name: current-user-password
-            namespace: default
-          data:
-            login: "{{ current_user | b64encode }}"
-            password: "{{ current_user_password| b64encode }}"
-    - name: Check if user exists
-      ansible.builtin.getent:
-        database: passwd
-        key: "{{ current_user }}"
-      register: user_info
-      ignore_errors: yes
-    - ansible.builtin.user:
-        name: "{{ current_user }}"
-        password: "{{ current_user_password | password_hash('sha512') }}"
-        shell: /bin/bash
-        create_home: yes
-      when: user_info.failed
-    - ansible.builtin.user:
-        name: "{{ current_user }}"
-        groups: sudo
-        append: yes
-      when: user_info.failed
-    - ansible.builtin.shell: |
-        echo "xfce4-session" > /home/{{ current_user }}/.xsession
-        chown {{ current_user }}:{{ current_user }} /home/{{ current_user }}/.xsession
-      when: user_info.failed
-    - ansible.builtin.user:
-        name: xrdp
-        groups: ssl-cert
-        append: yes
-
-    - ansible.builtin.systemd:
-        name: xrdp
-        state: restarted
   tags:
     - p3
     - bonus

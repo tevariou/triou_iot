@@ -1,6 +1,5 @@
 all:
   hosts:
     web1:
-      ansible_host: 142.93.99.201
-      ansible_user: root
-      current_user: triou
+      ansible_connection: local
+      ansible_user: vboxuser
