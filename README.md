@@ -1,32 +1,50 @@
 # Setup VM
 
-## Configure your ssh connection
-    
-* In your `~/.ssh/config` file, add the following configuration:
-```text
-Host do
-HostName <host_domain or host_ip>
-User triou
-AddKeysToAgent yes
-UseKeychain yes
-IdentityFile ~/.ssh/do_ed25519
-```
+## Download xubuntu
 
-## Install Ansible
+https://xubuntu.fr/ 
 
-* Requires python 3.12 on your system
+* Store in ~/sgoinfre
+* VM folder in ~/goinfre/vbox
+* Username: `triou` Password: `changeme`
+* Check GuestAdditions checkbox
+* Set 8 CPUs and 8GB of RAM
+* Set 25 gb of storage
+* Install Xubuntu minimal flavor
+
+* In vm settings, enable System>Processor>Nested VT-x/AMD-V and General > Advanced > Shared Clipboard > Bidirectional
+
+## Install dependencies
 
 ```shell
-cd ./<path_to_ansible_directory>
-python -m venv .venv
-source .venv/bin/activate
-pip install ansible-core passlib
-ansible-galaxy install -r requirements.yaml
+sudo apt install firefox git vim
 ```
 
-## Edit the inventory file
+* Install vagrant and virtualbox
 
-In the `inventory.yaml` file, replace the `ansible_host` value with the IP address of your VM.
+# P1 & P2
+
+To run `vagrant up`
+To halt `vagrant halt`
+To destroy `vagrant destroy triouS triouSW`
+
+## Configure your ssh connection
+
+* Generate a new ssh key pair in `~/.ssh`
+* Create ssh config file `~/.ssh/docker_config` and add the following configuration:
+```text
+Host *
+  IdentityFile ~/.ssh/<private_key>
+```
+* Add your public key to the VM (`/root/.ssh/authorized_keys`)
+
+## Run setup
+
+```shell
+# FIXME: use Makefile and add tag option
+docker build -t ansible --platform linux/amd64 --build-arg vm_ip_address="<vm_ip_address>" --build-arg ansible_tag="<tag>" . 
+docker run -it --rm -v $(dirname $SSH_AUTH_SOCK):/ssh-agent -v ~/.ssh:/root/.ssh -v ~/.ssh/docker_config:/root/.ssh/config -e SSH_AUTH_SOCK=/ssh-agent/Listeners ansible
+```
 
 ## Rdp access
 
