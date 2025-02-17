@@ -1,6 +1,6 @@
 all:
   hosts:
     web1:
-      ansible_host: 142.93.99.201
+      ansible_host: "{{ vm_ip_address }}"
       ansible_user: root
       current_user: triou

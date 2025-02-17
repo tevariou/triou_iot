@@ -29,5 +29,7 @@ spec:
       targetPort: 8888
       protocol: TCP
       name: http
+      nodePort: 8888
   selector:
     app.kubernetes.io/name: playground
+  type: NodePort
