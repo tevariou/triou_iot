@@ -4,8 +4,8 @@
 
 https://xubuntu.fr/ 
 
-* Store in ~/sgoinfre
-* VM folder in ~/goinfre/vbox
+* Store in `~/sgoinfre`
+* VM folder should be `~/goinfre/vbox`
 * Username: `triou` Password: `changeme`
 * Check GuestAdditions checkbox
 * Set 8 CPUs and 8GB of RAM
@@ -14,19 +14,27 @@ https://xubuntu.fr/
 
 * In vm settings, enable System>Processor>Nested VT-x/AMD-V and General > Advanced > Shared Clipboard > Bidirectional
 
-## Install dependencies
+## Install base dependencies
 
 ```shell
-sudo apt install firefox git vim
+sudo apt install git vim
 ```
 
-* Install vagrant and virtualbox
-
 # P1 & P2
+
+* Install vagrant and virtualbox with `sudo bash p1/scripts/setup.sh`
 
 To run `vagrant up`
 To halt `vagrant halt`
 To destroy `vagrant destroy triouS triouSW`
+
+* Cleanup with `sudo bash p2/scripts/cleanup.sh`
+
+# P3
+
+* 
+
+## Install docker
 
 ## Configure your ssh connection
 
