@@ -34,7 +34,7 @@ apt-get install helm
 # Install and configure k3d cluster
 echo "Creating k3d cluster..."
 k3d cluster delete "triouS" || true
-k3d cluster create "triouS" --api-port 6550 --k3s-arg "--disable=traefik@server:0" --k3s-arg "--disable=servicelb@server:0" --no-lb --wait
+k3d cluster create "triouS" --api-port 6550 -p "8888:30888@server:0" --k3s-arg "--disable=traefik@server:0" --k3s-arg "--disable=servicelb@server:0" --no-lb --wait
 
 # Install and configure MetalLB
 echo "Installing MetalLB..."
