@@ -177,7 +177,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
 EOF
-
-nginx_addr=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-iptables -t nat -A PREROUTING -p tcp -d 127.0.0.1 --dport 8888 -j DNAT --to-destination "${nginx_addr}:8888"
-iptables -A FORWARD -p tcp -d "${nginx_addr}" -j ACCEPT
+#
+#playground_svc=$(kubectl get svc -n dev playground-service -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+#iptables -t nat -A PREROUTING -p tcp -d 127.0.0.1 --dport 8888 -j DNAT --to-destination "${playground_svc}:8888"
+#iptables -A FORWARD -p tcp -d "${playground_svc}" -j ACCEPT
