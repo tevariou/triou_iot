@@ -26,11 +26,17 @@ spec:
         parameters:
           - name: "global.hosts.domain"
             value: "example.com"
+          - name: "global.hosts.gitlab.https"
+            value: "false"
           - name: "certmanager-issuer.email"
             value: "triou@student.42.fr"
           - name: "global.edition"
             value: "ce"
           - name: "upgradeCheck.enabled"
+            value: "false"
+          - name: "global.ingress.tls.enabled"
+            value: "false"
+          - name: "gitlab-runner.install"
             value: "false"
         values: |
           prometheus:

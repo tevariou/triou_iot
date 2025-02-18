@@ -93,6 +93,17 @@ echo "Installing NGINX ingress controller..."
 curl -fsSL https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/aws/deploy.yaml -o ~/nginx-deploy.yaml
 chmod 0664 ~/nginx-deploy.yaml
 kubectl apply -f ~/nginx-deploy.yaml
+sleep 10
+
+# Wait for nginx services to be created
+until kubectl get svc ingress-nginx-controller -n ingress-nginx; do
+  echo "Waiting for ingress-nginx service to be created..."
+  sleep 30
+done
+until kubectl get svc ingress-nginx-controller-admission -n ingress-nginx; do
+  echo "Waiting for ingress-nginx service to be created..."
+  sleep 30
+done
 
 # Install ArgoCD
 echo "Installing ArgoCD..."
