@@ -37,52 +37,6 @@ sudo su
 bash p3/scripts/setup.sh
 ```
 
-## Install docker
-
-## Configure your ssh connection
-
-* Generate a new ssh key pair in `~/.ssh`
-* Create ssh config file `~/.ssh/docker_config` and add the following configuration:
-```text
-Host *
-  IdentityFile ~/.ssh/<private_key>
-```
-* Add your public key to the VM (`/root/.ssh/authorized_keys`)
-
-## Run setup
-
-```shell
-# FIXME: use Makefile and add tag option
-docker build -t ansible --platform linux/amd64 --build-arg vm_ip_address="<vm_ip_address>" --build-arg ansible_tag="<tag>" . 
-docker run -it --rm -v $(dirname $SSH_AUTH_SOCK):/ssh-agent -v ~/.ssh:/root/.ssh -v ~/.ssh/docker_config:/root/.ssh/config -e SSH_AUTH_SOCK=/ssh-agent/Listeners ansible
-```
-
-## Rdp access
-
-Login: `triou`
-Get password
-```shell
-kubectl get secret current-user-password -o jsonpath="{.data.password}" | base64 --decode | xargs
-```
-
-# Part 1
-
-```shell
-ansible-playbook -i inventory.yaml playbook.yaml --tags "p1"
-```
-
-# Part 2
-
-```shell
-ansible-playbook -i inventory.yaml playbook.yaml --tags "p2"
-```
-
-# Part 3
-
-```shell
-ansible-playbook -i inventory.yaml playbook.yaml --tags "p3"
-```
-
 ## Argocd credentials
 
 Username: `admin`
@@ -94,7 +48,8 @@ argocd admin initial-password -n argocd
 # Bonus
 
 ```shell
-ansible-playbook -i inventory.yaml playbook.yaml --tags "bonus"
+sudo su
+bash bonus/scripts/setup.sh
 ```
 
 ## Get gitlab root password
@@ -103,4 +58,15 @@ Username: `root`
 
 ```shell
 kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -o jsonpath="{.data.password}" | base64 --decode | xargs
+```
+
+## Setup gitlab repository
+* Create a new project
+* Create a user access token
+* Allow force push on the main branch
+
+```shell
+git config --global http.sslVerify false
+git remote add gitlab https://gitlab.example.com/root/<repo_name>.git
+git push -f gitlab main
 ```

@@ -46,13 +46,13 @@ sleep 30
 # Wait for MetalLB pods to be running
 while [ "$(kubectl get pods -n metallb-system --no-headers | grep -c 'Running')" -ne "$(kubectl get pods -n metallb-system --no-headers | wc -l)" ]; do
   echo "Waiting for MetalLB pods to be running..."
-  sleep 60
+  sleep 30
 done
 
 # Wait for ingress to be created
 until kubectl get svc metallb-webhook-service -n metallb-system; do
   echo "Waiting for metallb svc to be created..."
-  sleep 60
+  sleep 30
 done
 
 # Get the CIDR block of the cluster
@@ -177,7 +177,21 @@ spec:
     syncOptions:
       - CreateNamespace=true
 EOF
-#
-#playground_svc=$(kubectl get svc -n dev playground-service -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-#iptables -t nat -A PREROUTING -p tcp -d 127.0.0.1 --dport 8888 -j DNAT --to-destination "${playground_svc}:8888"
-#iptables -A FORWARD -p tcp -d "${playground_svc}" -j ACCEPT
+sleep 30
+
+# Wait for Wil's app to be ready
+until kubectl get svc playground-service -n dev; do
+  echo "Waiting for playground ingress to be created..."
+  sleep 30
+done
+
+# Wait for ingress IP to be assigned
+until [ "$(kubectl get svc playground-service -n dev -o jsonpath="{.status.loadBalancer.ingress[0].ip}")" != "" ]; do
+  echo "Waiting for playground ingress IP to be assigned..."
+  sleep 30
+done
+
+sysctl -w net.ipv4.conf.all.route_localnet=1
+playground_svc=$(kubectl get svc -n dev playground-service -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+iptables -t nat -A OUTPUT -m addrtype --src-type LOCAL --dst-type LOCAL -p tcp --dport 8888 -j DNAT --to-destination "${playground_svc}"
+iptables -t nat -A POSTROUTING -m addrtype --src-type LOCAL --dst-type UNICAST -j MASQUERADE
