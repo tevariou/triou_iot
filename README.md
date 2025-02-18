@@ -8,7 +8,7 @@ https://xubuntu.fr/
 * VM folder should be `~/goinfre/vbox`
 * Username: `triou` Password: `changeme`
 * Check GuestAdditions checkbox
-* Set 8 CPUs and 8GB of RAM
+* Set 8 CPUs and 8192MB of RAM
 * Set 25 gb of storage
 * Install Xubuntu minimal flavor
 
@@ -17,7 +17,7 @@ https://xubuntu.fr/
 ## Install base dependencies
 
 ```shell
-sudo apt install git vim
+sudo apt install -y git vim firefox
 ```
 
 # P1 & P2
@@ -32,7 +32,10 @@ To destroy `vagrant destroy triouS triouSW`
 
 # P3
 
-* 
+```shell
+sudo su
+bash p3/scripts/setup.sh
+```
 
 ## Install docker
 

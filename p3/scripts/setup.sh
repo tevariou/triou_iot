@@ -34,7 +34,7 @@ apt-get install helm
 # Install and configure k3d cluster
 echo "Creating k3d cluster..."
 k3d cluster delete "triouS" || true
-k3d cluster create "triouS" --api-port 6550 -p "8888:30888@server:0" --k3s-arg "--disable=traefik@server:0" --k3s-arg "--disable=servicelb@server:0" --no-lb --wait
+k3d cluster create "triouS" --api-port 6550 --k3s-arg "--disable=traefik@server:0" --k3s-arg "--disable=servicelb@server:0" --no-lb --wait
 
 # Install and configure MetalLB
 echo "Installing MetalLB..."
@@ -177,3 +177,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
 EOF
+
+nginx_addr=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+iptables -t nat -A PREROUTING -p tcp -d 127.0.0.1 --dport 8888 -j DNAT --to-destination "${nginx_addr}:8888"
+iptables -A FORWARD -p tcp -d "${nginx_addr}" -j ACCEPT
