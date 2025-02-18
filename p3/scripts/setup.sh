@@ -41,7 +41,7 @@ echo "Installing MetalLB..."
 curl -fsSL https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml -o ~/metallb-native.yaml
 chmod 0664 ~/metallb-native.yaml
 kubectl apply -f ~/metallb-native.yaml
-sleep 30
+sleep 10
 
 # Wait for MetalLB pods to be running
 while [ "$(kubectl get pods -n metallb-system --no-headers | grep -c 'Running')" -ne "$(kubectl get pods -n metallb-system --no-headers | wc -l)" ]; do
@@ -100,7 +100,7 @@ helm repo add argo https://argoproj.github.io/argo-helm
 kubectl apply -k "https://github.com/argoproj/argo-cd/manifests/crds?ref=v2.13.3"
 kubectl create namespace argocd
 helm install argocd argo/argo-cd --namespace argocd --version 7.8.0 --set crds.install=false --set configs.params."server\.insecure"=true
-sleep 30
+sleep 10
 
 # Add ArgoCD ingress
 cat <<EOF | kubectl apply -f -
@@ -177,7 +177,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
 EOF
-sleep 30
+sleep 10
 
 # Wait for Wil's app to be ready
 until kubectl get svc playground-service -n dev; do

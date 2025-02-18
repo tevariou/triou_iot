@@ -104,4 +104,9 @@ until [ "$(kubectl get ingress gitlab-webservice-default -n gitlab -o jsonpath="
 done
 
 sed -i '/gitlab.example.com/d' /etc/hosts
-kubectl -n gitlab get ingress gitlab-webservice-default -o jsonpath="{.status.loadBalancer.ingress[0].ip}" | xargs -I {} echo {} gitlab.example.com >> /etc/hosts
+gitlab_addr=$(kubectl -n gitlab get ingress gitlab-webservice-default -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+echo "${gitlab_addr}" | xargs -I {} echo {} gitlab.example.com >> /etc/hosts
+
+# Upgrade ArgoCD to add GitLab host alias
+echo "Upgrading ArgoCD to add GitLab host alias..."
+helm upgrade argocd argo/argo-cd -n argocd --reuse-values --set "global.hostAliases[0].ip=${gitlab_addr}" --set "global.hostAliases[0].hostnames[0]=gitlab.example.com" --wait
