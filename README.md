@@ -61,12 +61,12 @@ kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -o jsonpath="{.
 ```
 
 ## Setup gitlab repository
+
 * Create a new project
 * Create a user access token
-* Allow force push on the main branch
+* Allow force push on the main branch in Settings > Repository > Branch rules
 
 ```shell
-git config --global http.sslVerify false
-git remote add gitlab https://gitlab.example.com/root/<repo_name>.git
+git remote add gitlab http://gitlab.example.com/root/<repo_name>.git
 git push -f gitlab main
 ```

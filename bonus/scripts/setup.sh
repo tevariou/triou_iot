@@ -50,6 +50,12 @@ spec:
             value: "false"
           - name: "global.ingress.configureCertmanager"
             value: "false"
+          - name: "global.hosts.https"
+            value: "false"
+          - name: "global.ingress.tls.enabled"
+            value: "false"
+          - name: "global.hosts.gitlab.https"
+            value: "false"
         values: |
           prometheus:
             install: false
