@@ -26,15 +26,11 @@ spec:
         parameters:
           - name: "global.hosts.domain"
             value: "example.com"
-          - name: "global.hosts.gitlab.https"
-            value: "false"
           - name: "certmanager-issuer.email"
             value: "triou@student.42.fr"
           - name: "global.edition"
             value: "ce"
           - name: "upgradeCheck.enabled"
-            value: "false"
-          - name: "global.ingress.tls.enabled"
             value: "false"
           - name: "gitlab-runner.install"
             value: "false"
@@ -112,7 +108,7 @@ done
 sed -i '/gitlab.example.com/d' /etc/hosts
 gitlab_addr=$(kubectl -n gitlab get ingress gitlab-webservice-default -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 echo "${gitlab_addr}" | xargs -I {} echo {} gitlab.example.com >> /etc/hosts
-
-# Upgrade ArgoCD to add GitLab host alias
-echo "Upgrading ArgoCD to add GitLab host alias..."
-helm upgrade argocd argo/argo-cd -n argocd --reuse-values --set "global.hostAliases[0].ip=${gitlab_addr}" --set "global.hostAliases[0].hostnames[0]=gitlab.example.com" --wait
+#
+## Upgrade ArgoCD to add GitLab host alias
+#echo "Upgrading ArgoCD to add GitLab host alias..."
+#helm upgrade argocd argo/argo-cd -n argocd --reuse-values --set "global.hostAliases[0].ip=${gitlab_addr}" --set "global.hostAliases[0].hostnames[0]=gitlab.example.com" --wait
