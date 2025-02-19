@@ -4,9 +4,21 @@
 echo "Setting swapiness..."
 sysctl vm.swappiness=10
 
+# Delete previous GitLab installation if exists
+echo "Deleting previous GitLab installation..."
+kubectl patch app gitlab  -n argocd -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge
+kubectl delete app gitlab -n argocd
+kubectl delete namespace gitlab
+
 # Create gitlab namespace
 echo "Creating gitlab namespace..."
 kubectl create namespace gitlab
+
+# Wait for gitlab pods to be deleted
+until [ "$(kubectl get pods -n gitlab --no-headers | wc -l)" == "0" ]; do
+  echo "Waiting for GitLab pods to be deleted..."
+  sleep 60
+done
 
 # Install GitLab
 echo "Installing GitLab..."
@@ -34,13 +46,15 @@ spec:
             value: "false"
           - name: "gitlab-runner.install"
             value: "false"
+          - name: "certmanager.install"
+            value: "false"
+          - name: "global.ingress.configureCertmanager"
+            value: "false"
         values: |
           prometheus:
             install: false
           registry:
             enabled: false
-          gitlab-runner:
-            install: false
           gitlab:
             webservice:
               resources:
@@ -108,7 +122,25 @@ done
 sed -i '/gitlab.example.com/d' /etc/hosts
 gitlab_addr=$(kubectl -n gitlab get ingress gitlab-webservice-default -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 echo "${gitlab_addr}" | xargs -I {} echo {} gitlab.example.com >> /etc/hosts
-#
-## Upgrade ArgoCD to add GitLab host alias
-#echo "Upgrading ArgoCD to add GitLab host alias..."
-#helm upgrade argocd argo/argo-cd -n argocd --reuse-values --set "global.hostAliases[0].ip=${gitlab_addr}" --set "global.hostAliases[0].hostnames[0]=gitlab.example.com" --wait
+
+# Edit core-dns configmap to add GitLab domain
+echo "Editing core-dns configmap to add GitLab domain..."
+kubectl -n kube-system delete configmap coredns-custom
+cat <<EOF | kubectl -n kube-system apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  example.server: |-
+    example.com. {
+      errors
+      forward . /etc/resolv.conf
+      hosts {
+        ${gitlab_addr} gitlab.example.com.
+        fallthrough
+      }
+    }
+EOF
+kubectl rollout restart deployment coredns -n kube-system
