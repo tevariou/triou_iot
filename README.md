@@ -1,6 +1,8 @@
-# Setup VM
+# Inception-of-Things - 42
 
-## Download xubuntu
+## Setup VM
+
+### Download xubuntu
 
 https://xubuntu.fr/ 
 
@@ -14,13 +16,13 @@ https://xubuntu.fr/
 
 * In vm settings, enable System>Processor>Nested VT-x/AMD-V and General > Advanced > Shared Clipboard > Bidirectional
 
-## Install base dependencies
+### Install base dependencies
 
 ```shell
 sudo apt install -y git vim firefox
 ```
 
-# P1 & P2
+## P1 & P2
 
 * Install vagrant and virtualbox with `sudo bash p1/scripts/setup.sh`
 
@@ -30,14 +32,14 @@ To destroy `vagrant destroy triouS triouSW`
 
 * Cleanup with `sudo bash p2/scripts/cleanup.sh`
 
-# P3
+## P3
 
 ```shell
 sudo su
 bash p3/scripts/setup.sh
 ```
 
-## Argocd credentials
+### Argocd credentials
 
 Username: `admin`
 
@@ -45,14 +47,14 @@ Username: `admin`
 argocd admin initial-password -n argocd
 ```
 
-# Bonus
+## Bonus
 
 ```shell
 sudo su
 bash bonus/scripts/setup.sh
 ```
 
-## Get gitlab root password
+### Get gitlab root password
 
 Username: `root`
 
@@ -60,7 +62,7 @@ Username: `root`
 kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -o jsonpath="{.data.password}" | base64 --decode | xargs
 ```
 
-## Setup gitlab repository
+### Setup gitlab repository
 
 * Create a new project
 * Create a user access token
