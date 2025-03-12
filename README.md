@@ -13,6 +13,7 @@ https://xubuntu.fr/
 * Set 8 CPUs and 8192MB of RAM
 * Set 25 gb of storage
 * Install Xubuntu minimal flavor
+* Disable auth at login
 
 * In vm settings, enable System>Processor>Nested VT-x/AMD-V and General > Advanced > Shared Clipboard > Bidirectional
 

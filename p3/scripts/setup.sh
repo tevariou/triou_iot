@@ -59,34 +59,12 @@ done
 cluster_name="k3d-triouS"
 cidr_block=$(docker network inspect $cluster_name | jq -r '.[0].IPAM.Config[0].Subnet')
 cidr_base_addr=${cidr_block%???}
-ingress_first_addr=$(echo $cidr_base_addr | awk -F'.' '{print $1,$2,255,2}' OFS='.')
-ingress_last_addr=$(echo $cidr_base_addr | awk -F'.' '{print $1,$2,255,254}' OFS='.')
+ingress_first_addr=$(echo $cidr_base_addr | awk -F'.' '{print $1,$2,0,2}' OFS='.')
+ingress_last_addr=$(echo $cidr_base_addr | awk -F'.' '{print $1,$2,0,8}' OFS='.')
 ingress_range=$ingress_first_addr-$ingress_last_addr
 
 # Configure MetalLB
-cat <<EOF | kubectl apply -f -
-apiVersion: metallb.io/v1beta1
-kind: IPAddressPool
-metadata:
-  name: default
-  namespace: metallb-system
-spec:
-  addresses:
-    - "$ingress_range"
-  autoAssign: true
-  avoidBuggyIPs: true
-EOF
-
-cat <<EOF | kubectl apply -f -
-apiVersion: metallb.io/v1beta1
-kind: L2Advertisement
-metadata:
-  name: l2advertisement
-  namespace: metallb-system
-spec:
-  ipAddressPools:
-    - default
-EOF
+INGRESS_RANGE=$ingress_range envsubst < p3/confs/metallb-config.yml | kubectl apply -f -
 
 # Install NGINX ingress controller
 echo "Installing NGINX ingress controller..."
@@ -114,29 +92,7 @@ helm install argocd argo/argo-cd --namespace argocd --version 7.8.0 --set crds.i
 sleep 10
 
 # Add ArgoCD ingress
-cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: argocd-server-ingress
-  namespace: argocd
-  annotations:
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: argocd.example.com
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: argocd-server
-                port:
-                  number: 80
-EOF
+kubectl apply -f p3/confs/argocd-ingress.yml
 
 # Install ArgoCD CLI
 echo "Installing ArgoCD CLI..."
@@ -165,29 +121,7 @@ kubectl create namespace dev
 
 # Install Wil's app
 echo "Installing Wil's app..."
-cat <<EOF | kubectl apply -f -
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: dev
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/tevariou/triou_iot.git
-    path: p3/confs/
-    targetRevision: main
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: dev
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-      allowEmpty: true
-    syncOptions:
-      - CreateNamespace=true
-EOF
+kubectl apply -f p3/confs/wil-app.yml
 sleep 10
 
 # Wait for Wil's app to be ready

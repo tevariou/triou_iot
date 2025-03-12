@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  example.server: |-
+    example.com. {
+      errors
+      forward . /etc/resolv.conf
+      hosts {
+        ${GITLAB_ADDR} gitlab.example.com.
+        fallthrough
+      }
+    }
