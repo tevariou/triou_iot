@@ -8,7 +8,7 @@ spec:
   sources:
     - repoURL: "https://charts.gitlab.io/"
       chart: gitlab
-      targetRevision: 8.8.1
+      targetRevision: 8.9.2
       helm:
         parameters:
           - name: "global.ingress.class"

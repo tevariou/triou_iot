@@ -20,7 +20,7 @@ https://xubuntu.fr/
 ### Install base dependencies
 
 ```shell
-sudo apt install -y git vim firefox
+sudo apt install -y git vim firefox curl
 ```
 
 ## P1 & P2
